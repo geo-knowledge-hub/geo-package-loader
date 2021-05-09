@@ -8,7 +8,7 @@
 #
 
 pydocstyle gkh_package_loader setup.py && \
-isort gkh_package_loader setup.py --check-only --diff #&& \
-#check-manifest --ignore ".travis.yml,.drone.yml,.readthedocs.yml" #&& \
+isort gkh_package_loader setup.py --check-only --diff && \
+check-manifest --ignore ".travis.yml,.drone.yml,.readthedocs.yml,.editorconfig" #&& \
 #sphinx-build -qnW --color -b doctest docs/sphinx/ docs/sphinx/_build/doctest && \
 #pytest
