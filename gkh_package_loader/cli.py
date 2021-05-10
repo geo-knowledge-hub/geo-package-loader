@@ -146,6 +146,58 @@ def upload_file(resource_filename, access_token, record_metadata):
     return commit_response.json()
 
 
+def add_related_identifiers(id, identifiers, invenio_rest_api, access_token):
+    """Add related identifiers to an existing record.
+
+    Args:
+        id (str): The record identifier.
+        identifiers (list): The list of related resources.
+        invenio_rest_api (str): Base URL for InvenioRDM REST API.
+        access_token (str): A valid bearer token to be used to create the new record.
+
+    Returns:
+        dict: The record metadata returned after updating it.
+
+    Raises:
+        ConnectionError: If the server is not reachable.
+        HTTPError: If the server response indicates an error.
+        ValueError: If resource file does not exist.
+    """
+    # create a draft record from a published record
+    url = '/'.join((invenio_rest_api.strip('/'), 'records', id, 'draft'))
+
+    headers = {
+        'content-type': 'application/json',
+        'authorization': f'Bearer {access_token}'
+    }
+
+    response = requests.post(url=url, headers=headers, verify=False)
+
+    draft_record = response.json()
+
+    # add the related identifiers to the beginning of an
+    # already existing list of identifiers
+    if 'related_identifiers' not in draft_record['metadata']:
+        draft_record['metadata']['related_identifiers'] = []
+
+    identifiers.extend(draft_record['metadata']['related_identifiers'])
+
+    draft_record['metadata']['related_identifiers'] = identifiers
+
+    # update the draft record with the new related_identifiers
+    response = requests.put(url=url,
+                            data=json.dumps(draft_record),
+                            headers=headers,
+                            verify=False)
+
+    draft_record = response.json()
+
+    # re-publish the record
+    pub_record = publish_record(draft_record, access_token)
+
+    return pub_record
+
+
 @click.group()
 @click.version_option()
 def cli():
@@ -183,8 +235,8 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
         click.secho(resources_dir)
 
     # read all the metadata from the knowledge package and its components
-    if verbose:
-        click.secho('Reading metadata from the knowledge package and its components... ', nl=False)
+    click.secho('Reading metadata from the knowledge package and its components... ',
+                nl=False, bold=True, fg='green')
 
     metadata_filename = os.path.join(resources_dir, kpackage['knowledge_package']['metadata_file'])
 
@@ -201,47 +253,43 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
 
         component["metadata"] = json.load(open(metadata_filename))
 
-    if verbose:
-        click.secho('ok!', bold=True, fg='green')
+    click.secho('ok!', bold=True, fg='green')
 
     # create the draft record for the knowledge package,
     # then upload all its associated resources and
     # finally publish it
-    if verbose:
-        click.secho('Creating knowledge package: ' \
-                    f'"{kpackage["knowledge_package"]["metadata"]["metadata"]["title"]}"...',
-                    bold=True, fg='yellow')
-        click.secho('\tcreating record draft... ', nl=False)
+    click.secho('Creating knowledge package: ' \
+                f'"{kpackage["knowledge_package"]["metadata"]["metadata"]["title"]}"...',
+                bold=True, fg='yellow')
+    click.secho('\tcreating record draft... ', nl=False)
 
     knowledge_package_record = create_record_draft(kpackage['knowledge_package']['metadata'], url, access_token)
 
-    if verbose:
-        click.secho('ok!', bold=True, fg='green')
-        click.secho('\tuploading files... ', nl=False)
+    click.secho('ok!', bold=True, fg='green')
+    click.secho('\tuploading files... ', nl=False)
 
     for resource in kpackage['knowledge_package']['resources']:
         resource_filename = os.path.join(resources_dir, resource)
         upload_file(resource_filename, access_token, knowledge_package_record)
 
-    if verbose:
-        click.secho('ok!', bold=True, fg='green')
-        click.secho('\tpublishing record... ', nl=False)
+    click.secho('ok!', bold=True, fg='green')
+    click.secho('\tpublishing record... ', nl=False)
 
     knowledge_package_record = publish_record(knowledge_package_record, access_token)
 
     knowledge_package_doi = knowledge_package_record['pids']['doi']['identifier']
 
-    if verbose:
-        click.secho('ok!', bold=True, fg='green')
-        click.secho('Knowledge Package created!', bold=True, fg='green')
-        click.secho('Creating components... ', bold=True, fg='yellow')
-
+    click.secho('ok!\nKnowledge Package created!\n', bold=True, fg='green')
+    click.secho('Creating components... ', bold=True, fg='yellow')
 
     # for each component of the knowledge package:
     # - link it to the knowledge package through the doi;
     # - create a draft record for the component;
     # - upload all its associated resources;
     # - publish the component.
+    # - add the component in the related_identifiers list for the knowledge package
+    knowledge_package_related_identifiers = []
+
     for component in kpackage['components']:
         component_metadata = component['metadata']
 
@@ -261,32 +309,47 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
         component_metadata['metadata']['related_identifiers'].insert(0, related_identifier)
 
         # create the component draft record
-        if verbose:
-            click.secho(f'\tcreating component: "{component_metadata["metadata"]["title"]}"... ',
-                        bold=True, fg='yellow')
-            click.secho('\t\tcreating draft record... ', nl=False)
+        click.secho(f'\tcreating component: "{component_metadata["metadata"]["title"]}"... ',
+                    bold=True, fg='yellow')
+        click.secho('\t\tcreating draft record... ', nl=False)
 
         component_record = create_record_draft(component_metadata, url, access_token)
 
-        if verbose:
-            click.secho('ok!', bold=True, fg='green')
-            click.secho('\t\tuploading files... ', nl=False)
+        click.secho('ok!', bold=True, fg='green')
+        click.secho('\t\tuploading files... ', nl=False)
 
         # upload files associated to the component
         for resource in component['resources']:
             resource_filename = os.path.join(resources_dir, resource)
             upload_file(resource_filename, access_token, component_record)
 
-        if verbose:
-            click.secho('ok!', bold=True, fg='green')
-            click.secho('\t\tpublishing component... ', nl=False)
+        click.secho('ok!', bold=True, fg='green')
+        click.secho('\t\tpublishing component... ', nl=False)
 
         # publish the component
         component_record = publish_record(component_record, access_token)
 
-        if verbose:
-            click.secho('ok!', bold=True, fg='green')
-            click.secho(f'\tcomponent: "{component_metadata["metadata"]["title"]}" created!\n',
-                        bold=True, fg='green')
+        knowledge_package_component_relation = {
+            "identifier": component_record['pids']['doi']['identifier'],
+            "scheme": "doi",
+            "relation_type": "haspart",
+            "resource_type": component_record['metadata']["resource_type"]
+        }
 
-        #component_doi = component_record['pids']['doi']['identifier']
+        knowledge_package_related_identifiers.insert(0, knowledge_package_component_relation)
+
+        click.secho('ok!', bold=True, fg='green')
+        click.secho(f'\tcomponent: "{component_metadata["metadata"]["title"]}" created!\n',
+                    bold=True, fg='green')
+
+    click.secho('Components created!\n', bold=True, fg='green')
+    click.secho('Updating the knowledge package list of related identifiers... ',
+                nl=False, bold=True, fg='yellow')
+
+    # update the knowledge package with related identifiers
+    add_related_identifiers(knowledge_package_record['id'],
+                            knowledge_package_related_identifiers,
+                            url, access_token)
+
+    click.secho('ok!', bold=True, fg='green')
+
