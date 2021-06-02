@@ -10,6 +10,8 @@
 
 import json
 import os
+from typing import Dict
+from typing import List
 
 import click
 import requests
@@ -80,70 +82,73 @@ def publish_record(record_metadata, access_token):
     return response.json()
 
 
-
-def upload_file(resource_filename, access_token, record_metadata):
+def upload_files(resouce_files, access_token, record_metadata) -> List[Dict]:
     """Upload a file using InvenioRDM REST API.
 
     Args:
-        resource_filename (str): The file name with full path for the resource to be uploaded.
+        resouce_files (list): The files (with complete path) that will be uploaded to the server.
         access_token (str): A valid bearer token to be used to upload the resource file.
         record_metadata (dict): Record draft metadata with the ``links`` key.
 
     Returns:
-        dict: The record metadata returned by InvenioRDM.
+        List[Dict]: List with metadata of each record file returned by InvenioRDM.
 
     Raises:
         ConnectionError: If the server is not reachable.
         HTTPError: If the server response indicates an error.
         ValueError: If resource file does not exist.
     """
-    if not os.path.exists(resource_filename):
-        raise ValueError(f'Resource file does not exist: "{resource_filename}".')
 
-    base_filename = os.path.basename(resource_filename)
-
-    # register a file upload
+    # Register a file upload
+    responses = []
     resource_metadata_url = record_metadata['links']['files']
 
-    resource_metadata_headers = {
-        'content-type': 'application/json',
-        'authorization': f'Bearer {access_token}'
-    }
+    # Create files draft
+    # In version 4.0 all data must be defined at the beginning of the draft
+    data = json.dumps([
+        {
+            'key': os.path.basename(file)
+        } for file in resouce_files
+    ])
 
     resource_metadata_response = requests.post(url=resource_metadata_url,
-                                               data=f'[{{"key": "{base_filename}"}}]',
-                                               headers=resource_metadata_headers,
+                                               data=data,
+                                               headers={
+                                                   'content-type': 'application/json',
+                                                   'authorization': f'Bearer {access_token}'
+                                               },
                                                verify=False)
 
     resource_metadata = resource_metadata_response.json()
-
-    # upload the file
-    content_url = resource_metadata['entries'][0]['links']['content']
 
     content_headers = {
         'content-type': 'application/octet-stream',
         'authorization': f'Bearer {access_token}'
     }
 
-    content_response = requests.put(url=content_url,
-                                    data=open(resource_filename, 'rb'),
-                                    headers=content_headers,
-                                    verify=False)
+    for resource_filename, entrie_metadata in zip(resouce_files, resource_metadata['entries']):
+        if not os.path.exists(resource_filename):
+            raise ValueError(f'Resource file does not exist: "{resource_filename}".')
 
-    content_metadata = content_response.json()
+        content_url = entrie_metadata['links']['content']
+        content_response = requests.put(url=content_url,
+                                        data=open(resource_filename, 'rb'),
+                                        headers=content_headers,
+                                        verify=False)
 
-    # commit the uploaded file
-    commit_url = content_metadata['links']['commit']
+        content_metadata = content_response.json()
 
-    commit_headers = {
-        'authorization': f'Bearer {access_token}'
-    }
+        # commit the uploaded file
+        commit_url = content_metadata['links']['commit']
 
-    commit_response = requests.post(url=commit_url,
-                                    headers=commit_headers,
-                                    verify=False)
+        commit_response = requests.post(url=commit_url,
+                                        headers={
+                                            'authorization': f'Bearer {access_token}'
+                                        },
+                                        verify=False)
+        responses.append(commit_response.json())
 
-    return commit_response.json()
+    return responses
 
 
 def add_related_identifiers(id, identifiers, invenio_rest_api, access_token):
@@ -268,9 +273,10 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
     click.secho('ok!', bold=True, fg='green')
     click.secho('\tuploading files... ', nl=False)
 
-    for resource in kpackage['knowledge_package']['resources']:
-        resource_filename = os.path.join(resources_dir, resource)
-        upload_file(resource_filename, access_token, knowledge_package_record)
+    # upload files related to knowledge package
+    upload_files([
+        os.path.join(resources_dir, res) for res in kpackage['knowledge_package']['resources']
+    ], access_token, knowledge_package_record)
 
     click.secho('ok!', bold=True, fg='green')
     click.secho('\tpublishing record... ', nl=False)
@@ -319,9 +325,9 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
         click.secho('\t\tuploading files... ', nl=False)
 
         # upload files associated to the component
-        for resource in component['resources']:
-            resource_filename = os.path.join(resources_dir, resource)
-            upload_file(resource_filename, access_token, component_record)
+        upload_files([
+            os.path.join(resources_dir, res) for res in component['resources']
+        ], access_token, component_record)
 
         click.secho('ok!', bold=True, fg='green')
         click.secho('\t\tpublishing component... ', nl=False)
@@ -352,4 +358,3 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
                             url, access_token)
 
     click.secho('ok!', bold=True, fg='green')
-
