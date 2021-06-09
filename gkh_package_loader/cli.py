@@ -274,12 +274,15 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
     click.secho('\tuploading files... ', nl=False)
 
     # upload files related to knowledge package
-    upload_files([
-        os.path.join(resources_dir, res) for res in kpackage['knowledge_package']['resources']
-    ], access_token, knowledge_package_record)
+    if kpackage['knowledge_package']['resources']:
+        upload_files([
+            os.path.join(resources_dir, res) for res in kpackage['knowledge_package']['resources']
+        ], access_token, knowledge_package_record)
 
-    click.secho('ok!', bold=True, fg='green')
-    click.secho('\tpublishing record... ', nl=False)
+        click.secho('ok!', bold=True, fg='green')
+        click.secho('\tpublishing record... ', nl=False)
+    else:
+        click.secho('This package does not have any files!', bold=True, fg='green')
 
     knowledge_package_record = publish_record(knowledge_package_record, access_token)
 
@@ -325,12 +328,15 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
         click.secho('\t\tuploading files... ', nl=False)
 
         # upload files associated to the component
-        upload_files([
-            os.path.join(resources_dir, res) for res in component['resources']
-        ], access_token, component_record)
+        if component['resources']:
+            upload_files([
+                os.path.join(resources_dir, res) for res in component['resources']
+            ], access_token, component_record)
 
-        click.secho('ok!', bold=True, fg='green')
-        click.secho('\t\tpublishing component... ', nl=False)
+            click.secho('ok!', bold=True, fg='green')
+            click.secho('\t\tpublishing component... ', nl=False)
+        else:
+            click.secho('This resource does not have any files!', bold=True, fg='green')
 
         # publish the component
         component_record = publish_record(component_record, access_token)
