@@ -17,6 +17,8 @@ import click
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 
+from time import sleep
+
 # Suppress InsecureRequestWarning warnings from urllib3.
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
@@ -37,6 +39,7 @@ def create_record_draft(metadata, invenio_rest_api, access_token):
         HTTPError: If the server response indicates an error.
         ValueError: If resource file does not exist.
     """
+    sleep(1)
     url = '/'.join((invenio_rest_api.strip('/'), 'records'))
 
     headers = {
@@ -69,6 +72,7 @@ def publish_record(record_metadata, access_token):
         HTTPError: If the server response indicates an error.
         ValueError: If resource file does not exist.
     """
+    sleep(1)
     url = record_metadata['links']['publish']
 
     headers = {
@@ -98,7 +102,7 @@ def upload_files(resouce_files, access_token, record_metadata) -> List[Dict]:
         HTTPError: If the server response indicates an error.
         ValueError: If resource file does not exist.
     """
-
+    sleep(1)
     # Register a file upload
     responses = []
     resource_metadata_url = record_metadata['links']['files']
@@ -168,6 +172,7 @@ def add_related_identifiers(id, identifiers, invenio_rest_api, access_token):
         HTTPError: If the server response indicates an error.
         ValueError: If resource file does not exist.
     """
+    sleep(1)
     # create a draft record from a published record
     url = '/'.join((invenio_rest_api.strip('/'), 'records', id, 'draft'))
 
@@ -308,9 +313,17 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
         related_identifier = {
             "identifier": knowledge_package_doi,
             "scheme": "doi",
-            "relation_type": "ispartof",
+            "relation_type": {
+                "id": "ispartof",
+                "title": {
+                    "en": "Is part of"
+                }
+            },
             "resource_type": {
-                "type": "knowledge"
+                "id": "knowledge",
+                "title": {
+                    "en": "Knowledge"
+                }
             }
         }
 
@@ -344,7 +357,12 @@ def load(verbose, url, access_token, knowledge_package, resources_dir):
         knowledge_package_component_relation = {
             "identifier": component_record['pids']['doi']['identifier'],
             "scheme": "doi",
-            "relation_type": "haspart",
+            "relation_type": {
+                "id": "haspart",
+                "title": {
+                    "en": "Has part"
+                }
+            },
             "resource_type": component_record['metadata']["resource_type"]
         }
 
