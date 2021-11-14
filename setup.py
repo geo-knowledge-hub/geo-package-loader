@@ -55,25 +55,25 @@ install_requires = [
 packages = find_packages()
 
 g = {}
-with open(os.path.join('gkh_package_loader', 'version.py'), 'rt') as fp:
+with open(os.path.join('geo_package_loader', 'version.py'), 'rt') as fp:
     exec(fp.read(), g)
     version = g['__version__']
 
 setup(
-    name='gkh-package-loader',
+    name='geo-package-loader',
     version=version,
     description=__doc__,
     long_description=readme + '\n\n' + history,
-    long_description_content_type = 'text/x-rst',
+    long_description_content_type='text/x-rst',
     keywords=['Knowledge', 'Earth Observations'],
     license='MIT',
     author='GEO Secretariat',
-    author_email='geokhub@dpi.inpe.br',
-    url='https://github.com/geo-knowledge-hub/gkh-package-loader',
+    author_email='geokhub@geosec.org',
+    url='https://github.com/geo-knowledge-hub/geo-package-loader',
     project_urls={
-        'Repository': 'https://github.com/geo-knowledge-hub/gkh-package-loader',
-        'Issues': 'https://github.com/geo-knowledge-hub/gkh-package-loader/issues',
-        'Documentation': 'https://gkh_package_loader.readthedocs.io/en/latest/'
+        'Repository': 'https://github.com/geo-knowledge-hub/geo-package-loader',
+        'Issues': 'https://github.com/geo-knowledge-hub/geo-package-loader/issues',
+        'Documentation': 'https://geo_package_loader.readthedocs.io/en/latest/'
     },
     packages=packages,
     zip_safe=False,
@@ -81,7 +81,7 @@ setup(
     platforms='any',
     entry_points={
         'console_scripts': [
-            'gkh-package-loader = gkh_package_loader.cli:cli',
+            'geo-package-loader = geo_package_loader.cli:cli',
         ],
     },
     python_requires='>=3.6',

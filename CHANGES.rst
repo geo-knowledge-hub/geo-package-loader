@@ -21,4 +21,4 @@ Version 0.1.0 (2021-05-09)
 
 - Source code versioning based on `Semantic Versioning 2.0.0 <https://semver.org/>`_.
 
-- License: `MIT <https://github.com/geo-knowledge-hub/gkh-package-loader/blob/master/LICENSE>`_.
+- License: `MIT <https://github.com/geo-knowledge-hub/geo-package-loader/blob/master/LICENSE>`_.

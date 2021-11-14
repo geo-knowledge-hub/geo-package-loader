@@ -12,12 +12,12 @@ GEO Knowledge Hub Package Loader
 
 
 .. image:: https://img.shields.io/badge/license-MIT-green
-        :target: https://github.com/geo-knowledge-hub/gkh-package-loader/blob/master/LICENSE
+        :target: https://github.com/geo-knowledge-hub/geo-package-loader/blob/master/LICENSE
         :alt: Software License
 
 
-.. image:: https://readthedocs.org/projects/gkh_package_loader/badge/?version=latest
-        :target: https://gkh_package_loader.readthedocs.io/en/latest/
+.. image:: https://readthedocs.org/projects/geo_package_loader/badge/?version=latest
+        :target: https://geo_package_loader.readthedocs.io/en/latest/
         :alt: Documentation Status
 
 
@@ -26,8 +26,8 @@ GEO Knowledge Hub Package Loader
         :alt: Software Life Cycle
 
 
-.. image:: https://img.shields.io/github/tag/geo-knowledge-hub/gkh-package-loader.svg
-        :target: https://github.com/geo-knowledge-hub/gkh-package-loader/releases
+.. image:: https://img.shields.io/github/tag/geo-knowledge-hub/geo-package-loader.svg
+        :target: https://github.com/geo-knowledge-hub/geo-package-loader/releases
         :alt: Release
 
 
@@ -50,12 +50,12 @@ Install
 
 **1.** Use ``git`` to clone the software repository::
 
-    git clone https://github.com/geo-knowledge-hub/gkh-package-loader.git
+    git clone https://github.com/geo-knowledge-hub/geo-package-loader.git
 
 
 **2.** Go to the source code folder::
 
-    cd gkh-package-loader
+    cd geo-package-loader
 
 
 **3.** Install in development mode::
@@ -88,9 +88,9 @@ Usage
 -----
 
 
-The Package Loader installs a command line tool named ``gkh-package-loader``. The example below shows how to use it to upload a Knowledge package::
+The Package Loader installs a command line tool named ``geo-package-loader``. The example below shows how to use it to upload a Knowledge package::
 
-    gkh-package-loader load --verbose \
+    geo-package-loader load --verbose \
                             --url https://127.0.0.1:5000/api \
                             --access-token k3pnxWYjM9cYYU5EZXVhiHCWMYKDlTIs5Sp1NRbGIp3NpSCmRP06CgHaGZ5d \
                             --knowledge-package /home/gribeiro/Devel/github/gqueiroz/demo-knowledge-packages/bdc/knowledge-package.json \

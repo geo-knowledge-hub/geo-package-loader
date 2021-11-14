@@ -11,5 +11,5 @@ include *.rst
 include *.sh
 include LICENSE
 include pytest.ini
-recursive-include gkh_package_loader *.py
+recursive-include geo_package_loader *.py
 
