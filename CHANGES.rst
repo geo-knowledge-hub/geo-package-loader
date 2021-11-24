@@ -9,8 +9,20 @@
 Changes
 =======
 
+Version 0.8.0 (2021-11-24)
+--------------------------
 
-Version 0.1.0 (2021-05-09)
+- Rename package from `gkh-package-loader`` to ``geo-package-loader``;
+- Based on `InvenioRDM 6.0 <https://inveniordm.docs.cern.ch/releases/versions/version-v6.0.0/>`_.
+
+
+Version 0.6.0 (2021-10-07)
+--------------------------
+
+- Upgrade model to `InvenioRDM 6.0 <https://inveniordm.docs.cern.ch/releases/versions/version-v6.0.0/>`_.
+
+
+Version 0.3.0 (2021-05-09)
 --------------------------
 
 - Command Line Interface (CLI).
