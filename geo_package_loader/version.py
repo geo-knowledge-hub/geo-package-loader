@@ -8,4 +8,4 @@
 
 """Version information for GEO Knowledge Hub Package Loader."""
 
-__version__ = '1.0.0'
+__version__ = '0.8.0'
