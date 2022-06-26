@@ -91,10 +91,10 @@ Usage
 The Package Loader installs a command line tool named ``geo-package-loader``. The example below shows how to use it to upload a Knowledge package::
 
     geo-package-loader load --verbose \
-                            --url https://127.0.0.1:5000/api \
-                            --access-token k3pnxWYjM9cYYU5EZXVhiHCWMYKDlTIs5Sp1NRbGIp3NpSCmRP06CgHaGZ5d \
-                            --knowledge-package /home/gribeiro/Devel/github/gqueiroz/demo-knowledge-packages/bdc/knowledge-package.json \
-                            --resources-dir /home/gribeiro/Devel/github/gqueiroz/demo-knowledge-packages/bdc
+                            --url https://<YOUR-API-ADDRESS>/api \
+                            --access-token <YOUR-ACCESS-TOKEN> \
+                            --knowledge-package /demo-knowledge-packages/bdc/knowledge-package.json \
+                            --resources-dir /demo-knowledge-packages/bdc
 
 
 Knowledge Package File
@@ -159,7 +159,7 @@ License
 
 
 .. admonition::
-    Copyright 2021 GEO Secretariat.
+    Copyright 2021-2022 GEO Secretariat.
 
     GEO Knowledge Hub Package Loader is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
