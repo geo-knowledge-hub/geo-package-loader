@@ -108,29 +108,29 @@ A ``Knowledge Package Repository`` must contain the file ``knowledge-package.jso
 .. code-block:: json
 
         {
-            "knowledge_package": {
-                "metadata_file": "package/metadata.json",
-                "files": [
-                    "package/data.txt"
-                ],
-                "options": {
-                    "include_doi": true
-                }
-        },
-        "resources":  [
-                {
-                    "metadata_file": "resources/resource-01.json",
-                    "files": [
-                        "resources/data.txt"
-                    ],
-                    "options": {
-                        "include_doi": false
-                    }
-                },
-                {
-                    "metadata_file": "resources/resource-02.json"
-                }
-            ]
+           "knowledge_package":{
+              "metadata_file":"package/metadata.json",
+              "files":[
+                 "package/data.txt"
+              ],
+              "options":{
+                 "include_doi":true
+              }
+           },
+           "resources":[
+              {
+                 "metadata_file":"resources/resource-01.json",
+                 "files":[
+                    "resources/data.txt"
+                 ],
+                 "options":{
+                    "include_doi":false
+                 }
+              },
+              {
+                 "metadata_file":"resources/resource-02.json"
+              }
+           ]
         }
 
 
