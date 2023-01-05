@@ -138,11 +138,12 @@ As you can see, the file is separated into two sections:
 
 - ``knowledge_package``: In this section, you define where the file with the metadata for the ``Knowledge Package`` that is to be published is located, along with the files that are to be uploaded;
 
-- ``resources``: List with the definition of the ``Knowledge Resources``` that must be created and associated with the package. The internal definition structure for each resource is the same as for the package.
 
-From the code block, in addition to defining metadata (`metadata_file`) and files (`files`), it is possible to define extra options. The available option, `include_doi`, specifies that the tool should request the GEO Knowledge Hub to reserve DOIs for resources.
+- ``resources``: List with the definition of the ``Knowledge Resources`` that must be created and associated with the package. The internal definition structure for each resource is the same as for the package.
 
-Also, you should note that if a specific definition, such as `files` or `extra options`, is not required, they do not need to be defined in the ``knowledge-package.json`` file.
+From the code block, in addition to defining metadata (``metadata_file``) and files (``files``), it is possible to define extra options. The available option, ``include_doi``, specifies that the tool should request the GEO Knowledge Hub to reserve DOIs for resources.
+
+Also, you should note that if a specific definition, such as ``files`` or ``extra options``, is not required, they do not need to be defined in the ``knowledge-package.json`` file.
 
 License
 -------
