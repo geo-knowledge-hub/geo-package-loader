@@ -39,14 +39,18 @@ GEO Knowledge Hub Package Loader
 About
 -----
 
-
 Load Knowledge Packages metadata and related resources to the GEO Knowledge Hub digital library.
-
-
 
 Install
 -------
 
+**1.** Install from the GitHub repository::
+
+    pip3 install git+https://github.com/geo-knowledge-hub/geo-package-loader.git
+
+
+Install (Development mode)
+--------------------------
 
 **1.** Use ``git`` to clone the software repository::
 
@@ -60,7 +64,7 @@ Install
 
 **3.** Install in development mode::
 
-    pip3 install -e .[all]
+    pip3 install -e .[tests,docs]
 
 
 .. note::
@@ -79,87 +83,73 @@ Install
 
     **3.** Update pip and setuptools::
 
-        pip3 install --upgrade pip
-
-        pip3 install --upgrade setuptools
+        pip3 install --upgrade pip wheel setuptools
 
 
 Usage
 -----
 
-
-The Package Loader installs a command line tool named ``geo-package-loader``. The example below shows how to use it to upload a Knowledge package::
+The Package Loader installs a command line tool named ``geo-package-loader``. The example below shows how to use it to upload a ``Knowledge Package``::
 
     geo-package-loader load --verbose \
-                            --url https://<YOUR-API-ADDRESS>/api \
+                            --packages-api https://<YOUR-API-ADDRESS>/api/packages \
+                            --records-api  https://<YOUR-API-ADDRESS>/api/records \
                             --access-token <YOUR-ACCESS-TOKEN> \
-                            --knowledge-package /demo-knowledge-packages/bdc/knowledge-package.json \
-                            --resources-dir /demo-knowledge-packages/bdc
+                            --knowledge-package-repository <DIRECTORY-WHERE-PACKAGE-IS-DEFINED>
 
 
-Knowledge Package File
-----------------------
+Knowledge Package Repository
+----------------------------
 
+To use the ``geo-package-loader``,  you must have defined a ``Knowledge Package Repository``, a directory containing the elements you will use to build the package, its resources, and data files.
 
-The ``knowledge-package.json`` file above has the following structure:
-
+A ``Knowledge Package Repository`` must contain the file ``knowledge-package.json`` at its root. This file specifies which and how the files in the directory are to be used. An example of the file format is presented below:
 
 .. code-block:: json
 
-    {
-        "knowledge_package": {
-            "metadata_file": "bdc-lulc.json",
-            "resources": [
-                "pdf/bdc-lulc-user-guide.pdf",
-                "videos/gkhub-bdc-lulc.mp4"
-            ]
+        {
+            "knowledge_package": {
+                "metadata_file": "package/metadata.json",
+                "files": [
+                    "package/data.txt"
+                ],
+                "options": {
+                    "include_doi": true
+                }
         },
-        "components":  [
-            {
-                "metadata_file": "dataset-lulc-maps.json",
-                "resources": [
-                    "pdf/bdc-lulc-maps.pdf",
-                    "maps/CB4_64_16D_STK_1.zip",
-                    "maps/LC8_30_16D_STK_1.zip"
-                ]
-            },
-            {
-                "metadata_file": "dataset-datacube.json",
-                "resources": [
-                    "pdf/bdc-datacube.pdf"
-                ]
-            }
-        ]
-    }
+        "resources":  [
+                {
+                    "metadata_file": "resources/resource-01.json",
+                    "files": [
+                        "resources/data.txt"
+                    ],
+                    "options": {
+                        "include_doi": false
+                    }
+                },
+                {
+                    "metadata_file": "resources/resource-02.json"
+                }
+            ]
+        }
 
 
-Access Token
-------------
+As you can see, the file is separated into two sections:
 
+- ``knowledge_package``: In this section, you define where the file with the metadata for the ``Knowledge Package`` that is to be published is located, along with the files that are to be uploaded;
 
-In order to create an access token to be used to create records and upload files through InvenioRDM REST API, use the ``invenio tokens create`` command::
+- ``resources``: List with the definition of the ``Knowledge Resources``` that must be created and associated with the package. The internal definition structure for each resource is the same as for the package.
 
-    invenio tokens create --name gkhub-ingest --user email@mail.org
+From the code block, in addition to defining metadata (`metadata_file`) and files (`files`), it is possible to define extra options. The available option, `include_doi`, specifies that the tool should request the GEO Knowledge Hub to reserve DOIs for resources.
 
-
-This will output a key such as::
-
-    k3pnxWYjM9cYYU5EZXVhiHCWMYKDlTIs5Sp1NRbGIp3NpSCmRP06CgHaGZ5d
-
-
-If you do not have a base user, perform the following commands::
-
-    invenio users create email@mail.org --password=123456 --active
-
-    invenio roles add email@mail.org admin
-
+Also, you should note that if a specific definition, such as `files` or `extra options`, is not required, they do not need to be defined in the ``knowledge-package.json`` file.
 
 License
 -------
 
 
 .. admonition::
-    Copyright 2021-2022 GEO Secretariat.
+    Copyright 2021-2023 GEO Secretariat.
 
     GEO Knowledge Hub Package Loader is free software; you can redistribute it and/or modify it
     under the terms of the MIT License; see LICENSE file for more details.
